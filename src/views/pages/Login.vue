@@ -14,6 +14,7 @@
                       <CIcon icon="cil-user" />
                     </CInputGroupText>
                     <CFormInput
+                      v-model="username"
                       placeholder="Username"
                       autocomplete="username"
                       :value="username"
@@ -25,6 +26,7 @@
                       <CIcon icon="cil-lock-locked" />
                     </CInputGroupText>
                     <CFormInput
+                      v-model="password"
                       type="password"
                       placeholder="Password"
                       autocomplete="current-password"
@@ -62,6 +64,12 @@
 import { mapState } from 'vuex'
 export default {
   name: 'Login',
+  data() {
+    return {
+      username: 'snapnreview@gmail.com',
+      password: '123',
+    }
+  },
   computed: {
     ...mapState({
       username: (state) => state.username,
@@ -70,12 +78,20 @@ export default {
   },
   methods: {
     updateUsername(event) {
-      this.$store.commit('setUsername', event.target.value)
+      this.$store.commit(
+        'setUsername',
+        typeof event == 'string' ? event : event.target.value,
+      )
     },
     updatePassword(event) {
-      this.$store.commit('setPassword', event.target.value)
+      this.$store.commit(
+        'setPassword',
+        typeof event == 'string' ? event : event.target.value,
+      )
     },
     login() {
+      this.updateUsername(this.username)
+      this.updatePassword(this.password)
       this.$store.dispatch('loginAction')
     },
   },

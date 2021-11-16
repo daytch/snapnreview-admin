@@ -44,6 +44,48 @@ const routes = [
         beforeEnter: ifAuthenticated,
       },
       {
+        path: '/pages/category',
+        name: 'Category',
+        component: () => import('@/views/pages/Category.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/products',
+        name: 'Products',
+        component: () => import('@/views/pages/Products.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/reviews',
+        name: 'Reviews',
+        component: () => import('@/views/pages/Reviews.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/comments',
+        name: 'Reported Comments',
+        component: () => import('@/views/pages/Comments.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/reportedreviews',
+        name: 'Reported Reviews',
+        component: () => import('@/views/pages/ReportedReviews.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/reportedquestions',
+        name: 'Reported Questions',
+        component: () => import('@/views/pages/ReportedQuestions.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
+        path: '/pages/questions',
+        name: 'Questions',
+        component: () => import('@/views/pages/Questions.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
         path: '/theme/colors',
         name: 'Colors',
         component: () => import('@/views/theme/Colors.vue'),
