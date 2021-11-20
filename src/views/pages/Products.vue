@@ -4,73 +4,107 @@
       <CCard class="mb-4">
         <CCardHeader> <strong>Products</strong> </CCardHeader>
         <CCardBody>
-          <CButton
-            color="primary"
-            @click="
-              () => {
-                visibleVerticallyCenteredScrollableDemo = true
-              }
-            "
-            >Vertically centered scrollable modal</CButton
-          >
-          <CModal
-            alignment="center"
-            scrollable
-            :visible="visibleVerticallyCenteredScrollableDemo"
-            @close="
-              () => {
-                visibleVerticallyCenteredScrollableDemo = false
-              }
-            "
-          >
-            <CModalHeader>
-              <CModalTitle>Modal title</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-              Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-              dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-              ac consectetur ac, vestibulum at eros.
-            </CModalBody>
-            <CModalFooter>
-              <CButton
-                color="secondary"
-                @click="
-                  () => {
-                    visibleVerticallyCenteredScrollableDemo = false
-                  }
-                "
-              >
-                Close
-              </CButton>
-              <CButton color="primary">Save changes</CButton>
-            </CModalFooter>
-          </CModal>
           <CTable hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Class</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Heading</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Heading</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Product</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Category</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Uploaded By</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody>
+            <CTableBody
+              v-for="(p, index) in $store.state.product.product"
+              :key="index"
+            >
               <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>Mark</CTableDataCell>
-                <CTableDataCell>Otto</CTableDataCell>
-                <CTableDataCell>@mdo</CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">2</CTableHeaderCell>
-                <CTableDataCell>Jacob</CTableDataCell>
-                <CTableDataCell>Thornton</CTableDataCell>
-                <CTableDataCell>@fat</CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">3</CTableHeaderCell>
-                <CTableDataCell colspan="2">Larry the Bird</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
+                <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
+                <CTableDataCell>{{ p.product }}</CTableDataCell>
+                <CTableDataCell>{{ p.category }}</CTableDataCell>
+                <CTableDataCell>{{ p.name }}</CTableDataCell>
+                <CTableDataCell>
+                  <CBadge
+                    v-if="p.isDisable === 0"
+                    color="success"
+                    shape="rounded-pill"
+                    >Active</CBadge
+                  >
+                  <CBadge v-else color="danger" shape="rounded-pill"
+                    >Inactive</CBadge
+                  >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <CButton
+                    size="sm"
+                    color="primary"
+                    @click="
+                      () => {
+                        productId = p.id
+                        isDisable = p.isDisable
+                        visibleStaticBackdrop = true
+                      }
+                    "
+                  >
+                    <CIcon name="cil-pencil" />
+                  </CButton>
+                  <CModal
+                    backdrop="static"
+                    alignment="center"
+                    :visible="visibleStaticBackdrop"
+                    @close="
+                      () => {
+                        visibleStaticBackdrop = false
+                      }
+                    "
+                  >
+                    <CModalHeader>
+                      <CModalTitle v-if="p.isDisable === 1"
+                        >Enable Product</CModalTitle
+                      >
+                      <CModalTitle v-else>Disable Product</CModalTitle>
+                    </CModalHeader>
+                    <CModalBody>
+                      Are you sure want to
+                      <strong>
+                        <template v-if="p.isDisable === 1">enable</template
+                        ><template v-else>disable</template></strong
+                      >
+                      this product <strong>({{ p.product }})</strong>?
+                    </CModalBody>
+                    <CModalFooter>
+                      <CButton
+                        size="sm"
+                        color="secondary"
+                        :disabled="isLoading"
+                        @click="
+                          () => {
+                            visibleStaticBackdrop = false
+                          }
+                        "
+                      >
+                        No
+                      </CButton>
+                      <CButton
+                        size="sm"
+                        color="primary"
+                        :disabled="isLoading"
+                        @click.prevent="updateProduct"
+                      >
+                        <template v-if="isLoading">
+                          <CSpinner
+                            component="span"
+                            size="sm"
+                            aria-hidden="true"
+                          />
+                          Loading...</template
+                        >
+                        <template v-else>Yes</template></CButton
+                      >
+                    </CModalFooter>
+                  </CModal>
+                </CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
@@ -81,12 +115,44 @@
 </template>
 
 <script>
+import product from './../../apis/product.js'
+
 export default {
   name: 'Products',
   data() {
     return {
-      visibleVerticallyCenteredScrollableDemo: false,
+      productId: 0,
+      visibleStaticBackdrop: false,
+      isDisable: 0,
+      isLoading: false,
     }
+  },
+  mounted() {
+    this.$store.dispatch('getAllProduct')
+  },
+  methods: {
+    async updateProduct() {
+      this.isLoading = true
+      if (this.isDisable === 1) {
+        const response = await product.enableProduct({
+          productId: this.productId,
+        })
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllProduct')
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      } else {
+        const response = await product.disableProduct({
+          productId: this.productId,
+        })
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllProduct')
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      }
+    },
   },
 }
 </script>

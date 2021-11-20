@@ -7,7 +7,7 @@ const UNAUTHORIZED = 401
 
 instance.interceptors.request.use((config) => {
   let token = localStorage.getItem('token')
-  config.headers.Authorization = `Bearer ${token}`
+  config.headers.common['x-access-token'] = token
   return config
 })
 
