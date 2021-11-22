@@ -60,7 +60,7 @@
                     "
                   >
                     <CModalHeader>
-                      <CModalTitle v-if="p.isDisable === 1"
+                      <CModalTitle v-if="isDisable === 1"
                         >Enable Product</CModalTitle
                       >
                       <CModalTitle v-else>Disable Product</CModalTitle>
@@ -68,7 +68,7 @@
                     <CModalBody>
                       Are you sure want to
                       <strong>
-                        <template v-if="p.isDisable === 1">enable</template
+                        <template v-if="isDisable === 1">enable</template
                         ><template v-else>disable</template></strong
                       >
                       this product <strong>({{ p.product }})</strong>?

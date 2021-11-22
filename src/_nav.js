@@ -1,17 +1,17 @@
 export default [
-  {
-    component: 'CNavItem',
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: 'cil-speedometer',
-    badge: {
-      color: 'primary',
-      text: 'NEW',
-    },
-  },
+  // {
+  //   component: 'CNavItem',
+  //   name: 'Dashboard',
+  //   to: '/dashboard',
+  //   icon: 'cil-speedometer',
+  //   badge: {
+  //     color: 'primary',
+  //     text: 'NEW',
+  //   },
+  // },
   {
     component: 'CNavTitle',
-    name: 'Theme',
+    name: 'Pages',
   },
   {
     component: 'CNavItem',
@@ -37,12 +37,12 @@ export default [
     to: '/pages/comments',
     icon: 'cil-notes',
   },
-  {
-    component: 'CNavItem',
-    name: 'Reported Reviews',
-    to: '/pages/reportedreviews',
-    icon: 'cil-notes',
-  },
+  // {
+  //   component: 'CNavItem',
+  //   name: 'Reported Reviews',
+  //   to: '/pages/reportedreviews',
+  //   icon: 'cil-notes',
+  // },
   {
     component: 'CNavItem',
     name: 'Questions',
@@ -51,7 +51,7 @@ export default [
   },
   {
     component: 'CNavItem',
-    name: 'Reported Questions',
+    name: 'Answers',
     to: '/pages/reportedquestions',
     icon: 'cil-notes',
   },

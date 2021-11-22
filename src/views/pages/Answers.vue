@@ -2,51 +2,30 @@
   <CRow>
     <CCol :xs="12">
       <CCard class="mb-4">
-        <CCardHeader> <strong>Reviews</strong> </CCardHeader>
+        <CCardHeader> <strong>Reported Answer</strong> </CCardHeader>
         <CCardBody>
-          <CRow class="justify-content-start">
-            <CCol xs="1">
-              <CFormSelect style size="sm">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-                <option value="50">50</option>
-                <option value="60">60</option>
-                <option value="70">70</option>
-                <option value="80">80</option>
-                <option value="90">90</option>
-                <option value="100">100</option>
-              </CFormSelect>
-            </CCol>
-          </CRow>
           <CTable hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Review</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Question</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Category</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Answer</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Answered By</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody
-              v-for="(r, idx) in $store.state.review.review"
-              :key="idx"
-            >
-              <CTableRow>
+            <CTableBody>
+              <CTableRow
+                v-for="(r, idx) in $store.state.answer.answer"
+                :key="idx"
+              >
                 <CTableHeaderCell scope="row">{{ idx + 1 }}</CTableHeaderCell>
-                <CTableDataCell
-                  :v-html="
-                    () => {
-                      sanitizedText(r.reviewDescription)
-                    }
-                  "
-                ></CTableDataCell>
+                <CTableDataCell>{{ r.question }}</CTableDataCell>
                 <CTableDataCell>{{ r.categoryName }}</CTableDataCell>
-
-                <CTableDataCell>{{ r.name }}</CTableDataCell>
+                <CTableDataCell>{{ r.answerDescription }}</CTableDataCell>
+                <CTableDataCell>{{ r.whoAnswer }}</CTableDataCell>
                 <CTableDataCell>
                   <CBadge
                     v-if="r.isDisable === 0"
@@ -64,10 +43,7 @@
                     color="primary"
                     @click="
                       () => {
-                        reviewId = r.reviewId
-                        review = r.review
-                        category = r.category
-                        description = r.description
+                        questionAnswerID = r.questionAnswerID
                         isDisable = r.isDisable
                         visibleStaticBackdrop = true
                       }
@@ -87,9 +63,9 @@
                   >
                     <CModalHeader>
                       <CModalTitle v-if="isDisable === 1"
-                        >Enable Review</CModalTitle
+                        >Enable Answer</CModalTitle
                       >
-                      <CModalTitle v-else>Disable Review</CModalTitle>
+                      <CModalTitle v-else>Disable Answer</CModalTitle>
                     </CModalHeader>
                     <CModalBody>
                       Are you sure want to
@@ -97,7 +73,7 @@
                         <template v-if="isDisable === 1">enable</template>
                         <template v-else>disable</template></strong
                       >
-                      this review ?
+                      this answer ?
                     </CModalBody>
                     <CModalFooter>
                       <CButton
@@ -117,7 +93,7 @@
                         size="sm"
                         color="primary"
                         :disabled="isLoading"
-                        @click.prevent="updateReview"
+                        @click.prevent="updateAnswer"
                       >
                         <template v-if="isLoading">
                           <CSpinner
@@ -133,14 +109,8 @@
                   </CModal>
                 </CTableDataCell>
               </CTableRow>
-            </CTableBody> </CTable
-          ><CPagination align="end" aria-label="Page navigation example">
-            <CPaginationItem disabled>Previous</CPaginationItem>
-            <CPaginationItem href="#">1</CPaginationItem>
-            <CPaginationItem href="#">2</CPaginationItem>
-            <CPaginationItem href="#">3</CPaginationItem>
-            <CPaginationItem href="#">Next</CPaginationItem>
-          </CPagination>
+            </CTableBody>
+          </CTable>
         </CCardBody>
       </CCard>
     </CCol>
@@ -148,42 +118,39 @@
 </template>
 
 <script>
-import review from './../../apis/review'
-import DOMPurify from 'dompurify'
+import answer from './../../apis/answer'
 export default {
-  name: 'Reviews',
+  name: 'Answer',
   data() {
     return {
-      reviewId: 0,
+      questionAnswerID: 0,
       visibleStaticBackdrop: false,
       isDisable: 0,
       isLoading: false,
     }
   },
   mounted() {
-    this.$store.dispatch('getAllReview')
+    this.$store.dispatch('getAllAnswer')
   },
   methods: {
-    sanitizedText(text) {
-      return DOMPurify.sanitize(text)
-    },
-    async updateReview() {
+    async updateAnswer() {
       this.isLoading = true
       let data = {
-        reviewId: this.reviewId,
+        questionAnswerId: this.questionAnswerID,
       }
-      debugger
+
       if (this.isDisable === 1) {
-        const response = await review.enableReview(data)
+        const response = await answer.enableAnswer(data)
+        debugger
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReview')
+          this.$store.dispatch('getAllAnswer')
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       } else {
-        const response = await review.disableReview(data)
+        const response = await answer.disableAnswer(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReview')
+          this.$store.dispatch('getAllAnswer')
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }

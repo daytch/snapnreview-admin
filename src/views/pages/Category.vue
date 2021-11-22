@@ -30,11 +30,13 @@
             "
           >
             <CModalHeader>
-              <CModalTitle>Create Category</CModalTitle>
+              <CModalTitle v-if="isEdit">Edit Category</CModalTitle>
+              <CModalTitle v-else>Create Category</CModalTitle>
             </CModalHeader>
             <CModalBody>
               <CFormCheck
                 id="isSubCategory"
+                :hidden="isEdit"
                 label="Is Sub Category"
                 @change.prevent="changeIsSubCategory"
               /><br />
@@ -56,12 +58,13 @@
                     {{ item.label }}
                   </option>
                 </CFormSelect>
-                <br />
+
                 <CFormLabel>Sub Category</CFormLabel>
                 <CFormInput
                   v-model="subCategory"
                   size="sm"
                   placeholder="Category"
+                  :value="subCategory"
                   @input="changeSubCategory"
                 />
               </div>
@@ -72,100 +75,7 @@
                   type="text"
                   size="sm"
                   placeholder="Category"
-                  @input="changeCategory"
-                />
-              </div>
-              <CFormLabel for="formFileSm">Image</CFormLabel>
-              <CFormInput
-                id="formFileSm"
-                type="file"
-                size="sm"
-                accept="image/jpeg, image/png"
-                @change="changeUploadImage"
-              />
-            </CModalBody>
-            <CModalFooter>
-              <CButton
-                size="sm"
-                color="secondary"
-                :disabled="isLoading"
-                @click="
-                  () => {
-                    visibleStaticBackdrop = false
-                  }
-                "
-              >
-                Close
-              </CButton>
-              <CButton
-                size="sm"
-                color="primary"
-                :disabled="isLoading"
-                @click.prevent="saveCategory"
-              >
-                <template v-if="isLoading">
-                  <CSpinner component="span" size="sm" aria-hidden="true" />
-                  Loading...</template
-                >
-                <template v-else>Save changes </template>
-              </CButton>
-            </CModalFooter>
-          </CModal>
-
-          <CModal
-            backdrop="static"
-            alignment="center"
-            scrollable
-            :visible="visibleStaticBackdropEdit"
-            @close="
-              () => {
-                visibleStaticBackdropEdit = false
-              }
-            "
-          >
-            <CModalHeader>
-              <CModalTitle>Update Category</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-              <CFormCheck
-                id="isSubCategory"
-                label="Is Sub Category"
-                @change.prevent="changeIsSubCategory"
-              /><br />
-
-              <div v-if="isSubCategory">
-                <CFormLabel>Main Category</CFormLabel>
-                <CFormSelect
-                  size="sm"
-                  :placeholder="'Select Parent Category'"
-                  :value="selectedCategory"
-                  @change="changeParentCategory"
-                >
-                  <option>Select Main Category</option>
-                  <option
-                    v-for="(item, index) in $store.getters.getDropdown"
-                    :key="index"
-                    :value="item.value"
-                  >
-                    {{ item.label }}
-                  </option>
-                </CFormSelect>
-                <br />
-                <CFormLabel>Sub Category</CFormLabel>
-                <CFormInput
-                  v-model="subCategory"
-                  size="sm"
-                  placeholder="Category"
-                  @input="changeSubCategory"
-                />
-              </div>
-              <div v-else>
-                <CFormLabel>Category</CFormLabel>
-                <CFormInput
-                  v-model="category"
-                  type="text"
-                  size="sm"
-                  placeholder="Category"
+                  :value="category"
                   @input="changeCategory"
                 />
               </div>
@@ -254,7 +164,7 @@
                     color="primary"
                     @click="
                       () => {
-                        editCategory(subItem)
+                        editCategory(parentCat, subItem)
                       }
                     "
                   >
@@ -265,7 +175,11 @@
                     color="danger"
                     @click="
                       () => {
-                        deleteCategory(subItem)
+                        deleteCategory = deletedCategory = {
+                          id: subItem.id,
+                          categoryName: subItem.text,
+                        }
+                        visibleStaticBackdropDelete = true
                       }
                     "
                   >
@@ -277,7 +191,91 @@
               <CTableRow v-else>
                 <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
                 <CTableDataCell>{{ parentCat.text }}</CTableDataCell>
-                <CTableDataCell></CTableDataCell>
+                <CTableDataCell>-</CTableDataCell>
+                <CTableDataCell>
+                  <img
+                    :src="parentCat.iconUrl"
+                    :alt="parentCat.text"
+                    style="width: 50px; height: 50px"
+                /></CTableDataCell>
+                <CTableDataCell>
+                  <CButton
+                    size="sm"
+                    color="primary"
+                    @click.prevent="
+                      () => {
+                        editCategory(parentCat, null)
+                      }
+                    "
+                  >
+                    Edit
+                  </CButton>
+                  <CButton
+                    size="sm"
+                    color="danger"
+                    @click.prevent="
+                      () => {
+                        deletedCategory = {
+                          id: parentCat.id,
+                          categoryName: parentCat.text,
+                        }
+                        visibleStaticBackdropDelete = true
+                      }
+                    "
+                  >
+                    Delete
+                  </CButton>
+                  <CModal
+                    backdrop="static"
+                    alignment="center"
+                    :visible="visibleStaticBackdropDelete"
+                    @close="
+                      () => {
+                        visibleStaticBackdropDelete = false
+                      }
+                    "
+                  >
+                    <CModalHeader>
+                      <CModalTitle>Delete Category</CModalTitle>
+                    </CModalHeader>
+                    <CModalBody>
+                      Are you sure want to
+                      <strong>delete</strong>
+                      this category
+                      <strong>({{ deletedCategory.categoryName }})</strong>?
+                    </CModalBody>
+                    <CModalFooter>
+                      <CButton
+                        size="sm"
+                        color="secondary"
+                        :disabled="isLoading"
+                        @click="
+                          () => {
+                            visibleStaticBackdropDelete = false
+                          }
+                        "
+                      >
+                        No
+                      </CButton>
+                      <CButton
+                        size="sm"
+                        color="primary"
+                        :disabled="isLoading"
+                        @click.prevent="deleteCategory"
+                      >
+                        <template v-if="isLoading">
+                          <CSpinner
+                            component="span"
+                            size="sm"
+                            aria-hidden="true"
+                          />
+                          Loading...</template
+                        >
+                        <template v-else>Yes</template></CButton
+                      >
+                    </CModalFooter>
+                  </CModal>
+                </CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
@@ -297,11 +295,14 @@ export default {
     return {
       visibleStaticBackdrop: false,
       visibleStaticBackdropEdit: false,
+      visibleStaticBackdropDelete: false,
+      deletedCategory: {},
       isSubCategory: false,
       category: '',
       subCategory: '',
       selectedCategory: '',
       isLoading: false,
+      isEdit: false,
       url: '',
     }
   },
@@ -314,13 +315,37 @@ export default {
     this.callAllmethods()
   },
   methods: {
-    editCategory(item) {
+    deleteCategory() {
+      this.isLoading = true
+      api.deleteCategory(this.deletedCategory).then((res) => {
+        console.log(res)
+        this.isLoading = false
+        this.visibleStaticBackdropDelete = false
+        this.callAllmethods()
+      })
+    },
+    editCategory(item, subItem) {
       debugger
-      this.isSubCategory = true
+      this.isEdit = true
+      console.log(subItem)
+      this.isSubCategory = item.sub.length > 0 ? true : false
       this.category = item.text
-      this.subCategory = item.subText
-      this.selectedCategory = item.parentId
-      this.url = item.iconUrl
+      this.subCategory = item.sub.length > 0 ? item.sub[0].text : null
+      this.selectedCategory = item.id
+      // this.url = item.iconUrl
+      let data = {
+        id: this.isSubCategory ? item.sub[0].id : item.id,
+        categoryName:
+          this.isSubCategory && item.sub.length > 0
+            ? item.sub[0].text
+            : item.text,
+        isParent: this.isSubCategory ? 0 : 1,
+        parentCategoryId: this.isSubCategory ? 'null' : item.id,
+      }
+      api.updateCategory(data).then((res) => {
+        console.log(res)
+        this.isEdit = false
+      })
       this.visibleStaticBackdrop = true
     },
     getParentCategory() {
@@ -363,11 +388,10 @@ export default {
     },
     saveCategory() {
       this.isLoading = true
-
       const data = {
         categoryName: this.isSubCategory ? this.subCategory : this.category,
         isParent: this.isSubCategory ? 0 : 1,
-        parentCategoryId: this.isSubCategory ? this.selectedCategory : 0,
+        parentCategoryId: this.isSubCategory ? this.selectedCategory : 'null',
         iconUrl: this.url,
       }
       api

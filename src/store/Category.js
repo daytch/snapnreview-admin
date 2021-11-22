@@ -2,8 +2,8 @@ import category from './../apis/category'
 
 const Category = {
   state: {
-    parentCategory: [{ id: 0, text: '', iconUrl: '', sub: [] }],
-    childCategory: [{ id: 0, text: '', iconUrl: '', parentCategoryId: 0 }],
+    parentCategory: [], // [{ id: 0, text: '', iconUrl: '', sub: [] }],
+    childCategory: [], //[{ id: 0, text: '', iconUrl: '', parentCategoryId: 0 }],
     dropdown: [],
   },
   mutations: {

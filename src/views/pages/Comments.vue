@@ -4,73 +4,106 @@
       <CCard class="mb-4">
         <CCardHeader> <strong>Reported Comments</strong> </CCardHeader>
         <CCardBody>
-          <CButton
-            color="primary"
-            @click="
-              () => {
-                visibleVerticallyCenteredScrollableDemo = true
-              }
-            "
-            >Vertically centered scrollable modal</CButton
-          >
-          <CModal
-            alignment="center"
-            scrollable
-            :visible="visibleVerticallyCenteredScrollableDemo"
-            @close="
-              () => {
-                visibleVerticallyCenteredScrollableDemo = false
-              }
-            "
-          >
-            <CModalHeader>
-              <CModalTitle>Modal title</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-              Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-              dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-              ac consectetur ac, vestibulum at eros.
-            </CModalBody>
-            <CModalFooter>
-              <CButton
-                color="secondary"
-                @click="
-                  () => {
-                    visibleVerticallyCenteredScrollableDemo = false
-                  }
-                "
-              >
-                Close
-              </CButton>
-              <CButton color="primary">Save changes</CButton>
-            </CModalFooter>
-          </CModal>
           <CTable hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Class</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Heading</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Heading</CTableHeaderCell>
+                <CTableHeaderCell scope="col">User</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Comment</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell>Mark</CTableDataCell>
-                <CTableDataCell>Otto</CTableDataCell>
-                <CTableDataCell>@mdo</CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">2</CTableHeaderCell>
-                <CTableDataCell>Jacob</CTableDataCell>
-                <CTableDataCell>Thornton</CTableDataCell>
-                <CTableDataCell>@fat</CTableDataCell>
-              </CTableRow>
-              <CTableRow>
-                <CTableHeaderCell scope="row">3</CTableHeaderCell>
-                <CTableDataCell colspan="2">Larry the Bird</CTableDataCell>
-                <CTableDataCell>@twitter</CTableDataCell>
+              <CTableRow
+                v-for="(r, idx) in $store.state.comment.comment"
+                :key="idx"
+              >
+                <CTableHeaderCell scope="row">{{ idx + 1 }}</CTableHeaderCell>
+                <CTableDataCell>{{ r.name }}</CTableDataCell>
+                <CTableDataCell>{{ r.comment }}</CTableDataCell>
+                <CTableDataCell>
+                  <CBadge
+                    v-if="r.isDisable === 0"
+                    color="success"
+                    shape="rounded-pill"
+                    >Active</CBadge
+                  >
+                  <CBadge v-else color="danger" shape="rounded-pill"
+                    >Inactive</CBadge
+                  >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <CButton
+                    size="sm"
+                    color="primary"
+                    @click="
+                      () => {
+                        commentId = r.reviewCommentId
+                        isDisable = r.isDisable
+                        visibleStaticBackdrop = true
+                      }
+                    "
+                  >
+                    <CIcon name="cil-pencil" />
+                  </CButton>
+                  <CModal
+                    backdrop="static"
+                    alignment="center"
+                    :visible="visibleStaticBackdrop"
+                    @close="
+                      () => {
+                        visibleStaticBackdrop = false
+                      }
+                    "
+                  >
+                    <CModalHeader>
+                      <CModalTitle v-if="isDisable === 1"
+                        >Enable Review</CModalTitle
+                      >
+                      <CModalTitle v-else>Disable Review Comment</CModalTitle>
+                    </CModalHeader>
+                    <CModalBody>
+                      Are you sure want to
+                      <strong>
+                        <template v-if="isDisable === 1">enable</template>
+                        <template v-else>disable</template></strong
+                      >
+                      this comment ?
+                    </CModalBody>
+                    <CModalFooter>
+                      <CButton
+                        size="sm"
+                        color="secondary"
+                        :disabled="isLoading"
+                        @click="
+                          () => {
+                            visibleStaticBackdrop = false
+                            isDisable = r.isDisable
+                          }
+                        "
+                      >
+                        No
+                      </CButton>
+                      <CButton
+                        size="sm"
+                        color="primary"
+                        :disabled="isLoading"
+                        @click.prevent="updateReviewComment"
+                      >
+                        <template v-if="isLoading">
+                          <CSpinner
+                            component="span"
+                            size="sm"
+                            aria-hidden="true"
+                          />
+                          Loading...</template
+                        >
+                        <template v-else>Yes</template></CButton
+                      >
+                    </CModalFooter>
+                  </CModal>
+                </CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
@@ -81,12 +114,42 @@
 </template>
 
 <script>
+import comment from './../../apis/comment'
 export default {
   name: 'Comments',
   data() {
     return {
-      visibleVerticallyCenteredScrollableDemo: false,
+      visibleStaticBackdrop: false,
+      commentId: 0,
+      isDisable: 0,
+      isLoading: false,
     }
+  },
+  mounted() {
+    this.$store.dispatch('getAllReviewComment')
+  },
+  methods: {
+    async updateReviewComment() {
+      this.isLoading = true
+      let data = {
+        reviewCommentId: this.commentId,
+      }
+      if (this.isDisable === 1) {
+        const response = await comment.enableReviewComment(data)
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllReviewComment')
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      } else {
+        const response = await comment.disableReviewComment(data)
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllReviewComment')
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      }
+    },
   },
 }
 </script>

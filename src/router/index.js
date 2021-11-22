@@ -75,8 +75,8 @@ const routes = [
       },
       {
         path: '/pages/reportedquestions',
-        name: 'Reported Questions',
-        component: () => import('@/views/pages/ReportedQuestions.vue'),
+        name: 'Reported Answer',
+        component: () => import('@/views/pages/Answers.vue'),
         beforeEnter: ifAuthenticated,
       },
       {
