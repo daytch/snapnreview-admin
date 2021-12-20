@@ -16,7 +16,7 @@ const User = {
       roles: [],
       token: '',
     },
-    users:[],
+    users: [],
     userTotal: 0,
   },
   mutations: {
@@ -44,21 +44,28 @@ const User = {
     setUsers(state, payload) {
       state.users = payload
     },
-    setTotal(state, payload){
+    setTotal(state, payload) {
       state.userTotal = payload
     }
   },
   actions: {
     async loginAction({ state, commit }) {
-      const response = await user.login({
+      let response = await user.login({
         email: state.username,
         password: state.password,
       })
-      localStorage.setItem('token', response.token)
-      console.log(response)
-      commit('setUser', response)
-      commit('setToken', response.token)
-      router.push('/')
+
+      if (response.isSuccess) {
+        localStorage.setItem('token', response.token)
+        console.log(response)
+        commit('setUser', response)
+        commit('setToken', response.token)
+        router.push('/')
+      }else{
+        console.log(response.message)
+        throw new Error(response.message)
+      }
+
     },
     logoutAction({ commit }) {
       localStorage.removeItem('token')
@@ -72,7 +79,7 @@ const User = {
       })
       router.push('/pages/login')
     },
-    async getAllUser({ commit }, {skip, take}) {
+    async getAllUser({ commit }, { skip, take }) {
       const response = await user.getAllUser({
         search: '',
         skip: skip,

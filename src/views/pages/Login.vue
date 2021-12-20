@@ -1,6 +1,39 @@
 <template>
   <div class="bg-light min-vh-100 d-flex flex-row align-items-center">
     <CContainer>
+      <CModal
+        backdrop="static"
+        alignment="center"
+        :visible="visibleStaticBackdrop"
+        @close="
+          () => {
+            visibleStaticBackdrop = false
+          }
+        "
+      >
+        <CModalHeader>
+          <CModalTitle>Error</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {{ errorMessage }}
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            size="sm"
+            color="secondary"
+            :disabled="isLoading"
+            @click="
+              () => {
+                visibleStaticBackdrop = false
+                errorMessage = ''
+              }
+            "
+          >
+           OK
+          </CButton>
+       
+        </CModalFooter>
+      </CModal>
       <CRow class="justify-content-center">
         <CCol :md="4">
           <CCardGroup>
@@ -66,6 +99,10 @@ export default {
   name: 'Login',
   data() {
     return {
+      visibleStaticBackdrop: false,
+       isLoading: false,
+      isDisable: 0,
+      errorMessage: 'Default Error Message!',
       username: '',
       password: '',
     }
@@ -89,10 +126,16 @@ export default {
         typeof event == 'string' ? event : event.target.value,
       )
     },
-    login() {
+    async login() {
       this.updateUsername(this.username)
       this.updatePassword(this.password)
-      this.$store.dispatch('loginAction')
+      try {
+        await this.$store.dispatch('loginAction')
+      } catch (error) {
+        await console.log(error);
+        this.errorMessage = error
+         this.visibleStaticBackdrop = true
+      }
     },
   },
 }
