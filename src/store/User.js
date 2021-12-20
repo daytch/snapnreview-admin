@@ -16,6 +16,8 @@ const User = {
       roles: [],
       token: '',
     },
+    users:[],
+    userTotal: 0,
   },
   mutations: {
     toggleSidebar(state) {
@@ -39,6 +41,12 @@ const User = {
     setToken(state, payload) {
       state.token = payload
     },
+    setUsers(state, payload) {
+      state.users = payload
+    },
+    setTotal(state, payload){
+      state.userTotal = payload
+    }
   },
   actions: {
     async loginAction({ state, commit }) {
@@ -63,6 +71,29 @@ const User = {
         token: '',
       })
       router.push('/pages/login')
+    },
+    async getAllUser({ commit }, {skip, take}) {
+      const response = await user.getAllUser({
+        search: '',
+        skip: skip,
+        take: take,
+      })
+      if (response.isSuccess) {
+        // let data = []
+        // for (const elm of response.data) {
+        //   data.push({
+        //     reviewId: elm.reviewId,
+        //     reviewDescription: elm.reviewDescription,
+        //     productName: elm.productName,
+        //     categoryName: elm.categoryName,
+        //     name: elm.name,
+        //     answerDescription: elm.answerDescription,
+        //     isDisable: elm.isDisable,
+        //   })
+        // }
+        await commit('setUsers', response.data)
+        await commit('setTotal', response.total)
+      }
     },
   },
   getters: {

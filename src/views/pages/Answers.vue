@@ -21,7 +21,9 @@
                 v-for="(r, idx) in $store.state.answer.answer"
                 :key="idx"
               >
-                <CTableHeaderCell scope="row">{{ idx + 1 }}</CTableHeaderCell>
+                <CTableHeaderCell scope="row">{{
+                  idx + 1 + (currentPage - 1) * perPage
+                }}</CTableHeaderCell>
                 <CTableDataCell>{{ r.question }}</CTableDataCell>
                 <CTableDataCell>{{ r.categoryName }}</CTableDataCell>
                 <CTableDataCell>{{ r.answerDescription }}</CTableDataCell>
@@ -111,6 +113,15 @@
               </CTableRow>
             </CTableBody>
           </CTable>
+          <div class="overflow-auto">
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="$store.state.answer.totalRecord"
+              :per-page="perPage"
+              aria-controls="my-table"
+              :change="checkPage(currentPage)"
+            ></b-pagination>
+          </div>
         </CCardBody>
       </CCard>
     </CCol>
@@ -127,12 +138,25 @@ export default {
       visibleStaticBackdrop: false,
       isDisable: 0,
       isLoading: false,
+       currentPage: 1,
+      perPage: 5,
+      totalRows: 1,
     }
   },
   mounted() {
-    this.$store.dispatch('getAllAnswer')
+    this.$store.dispatch('getAllAnswer', {
+      skip: this.skip,
+      take: this.take,
+    })
   },
   methods: {
+    checkPage(page) {
+      this.$store.dispatch('getAllAnswer', {
+        skip: this.skip,
+        take: this.take,
+      })
+      console.log(page)
+    },
     async updateAnswer() {
       this.isLoading = true
       let data = {
@@ -143,18 +167,32 @@ export default {
         const response = await answer.enableAnswer(data)
         debugger
         if (response.isSuccess) {
-          this.$store.dispatch('getAllAnswer')
+          this.$store.dispatch('getAllAnswer', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       } else {
         const response = await answer.disableAnswer(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllAnswer')
+          this.$store.dispatch('getAllAnswer', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       }
+    },
+  },
+   computed: {
+    skip: function () {
+      return (this.currentPage - 1) * this.perPage
+    },
+    take: function () {
+      return this.perPage
     },
   },
 }

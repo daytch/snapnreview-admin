@@ -19,7 +19,7 @@
                 v-for="(r, idx) in $store.state.comment.comment"
                 :key="idx"
               >
-                <CTableHeaderCell scope="row">{{ idx + 1 }}</CTableHeaderCell>
+                <CTableHeaderCell scope="row">{{ idx + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
                 <CTableDataCell>{{ r.name }}</CTableDataCell>
                 <CTableDataCell>{{ r.comment }}</CTableDataCell>
                 <CTableDataCell>
@@ -107,6 +107,15 @@
               </CTableRow>
             </CTableBody>
           </CTable>
+          <div class="overflow-auto">
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="$store.state.comment.totalRecord"
+              :per-page="perPage"
+              aria-controls="my-table"
+              :change="checkPage(currentPage)"
+            ></b-pagination>
+          </div>
         </CCardBody>
       </CCard>
     </CCol>
@@ -123,12 +132,25 @@ export default {
       commentId: 0,
       isDisable: 0,
       isLoading: false,
+      currentPage: 1,
+      perPage: 5,
+      totalRows: 1,
     }
   },
   mounted() {
-    this.$store.dispatch('getAllReviewComment')
+    this.$store.dispatch('getAllReviewComment', {
+      skip: this.skip,
+      take: this.take,
+    })
   },
   methods: {
+    checkPage(page) {
+      this.$store.dispatch('getAllReviewComment', {
+        skip: this.skip,
+        take: this.take,
+      })
+      console.log(page)
+    },
     async updateReviewComment() {
       this.isLoading = true
       let data = {
@@ -137,18 +159,32 @@ export default {
       if (this.isDisable === 1) {
         const response = await comment.enableReviewComment(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReviewComment')
+          this.$store.dispatch('getAllReviewComment', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       } else {
         const response = await comment.disableReviewComment(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReviewComment')
+          this.$store.dispatch('getAllReviewComment', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       }
+    },
+  },
+  computed: {
+    skip: function () {
+      return (this.currentPage - 1) * this.perPage
+    },
+    take: function () {
+      return this.perPage
     },
   },
 }

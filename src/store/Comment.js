@@ -3,18 +3,22 @@ import comment from './../apis/comment'
 const Comment = {
   state: {
     comment: [],
+    totalRecord: 0
   },
   mutations: {
     setComment(state, payload) {
       state.comment = payload
     },
+    setTotalRecord(state, payload) {
+      state.totalRecord = payload
+    },
   },
   actions: {
-    async getAllReviewComment({ commit }) {
+    async getAllReviewComment({ commit }, {skip, take}) {
       const response = await comment.getAllReviewCommentsReported({
         search: '',
-        skip: 0,
-        take: 100,
+        skip: skip,
+        take: take,
       })
       if (response.isSuccess) {
         let data = []
@@ -27,6 +31,7 @@ const Comment = {
           })
         }
         commit('setComment', data)
+        commit('setTotalRecord', response.total)
       }
     },
   },

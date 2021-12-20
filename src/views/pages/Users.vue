@@ -1,12 +1,12 @@
 <template>
   <CRow>
-    <CCol :xs="12">
-      <CCard class="mb-4">
-        <CCardHeader> <strong>Reviews</strong> </CCardHeader>
+    <CCol :lg="12">
+      <CCard class="mb-40">
+        <CCardHeader> <strong>Users</strong> </CCardHeader>
         <CCardBody>
           <CRow class="justify-content-start">
-            <!-- <CCol xs="1">
-              <CFormSelect style size="sm">
+            <CCol xs="1">
+              <!-- <CFormSelect style size="sm">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="30">30</option>
@@ -17,39 +17,60 @@
                 <option value="80">80</option>
                 <option value="90">90</option>
                 <option value="100">100</option>
-              </CFormSelect>
-            </CCol> -->
+              </CFormSelect> -->
+            </CCol>
           </CRow>
           <CTable hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Review</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Category</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Username</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Google Mail</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Facebook Mail</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Country</CTableHeaderCell>
+                <!-- <CTableHeaderCell scope="col">Bio</CTableHeaderCell> -->
+                <!-- <CTableHeaderCell scope="col">Followers</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Following</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Product Posted</CTableHeaderCell> -->
+                <!-- <CTableHeaderCell scope="col"
+                  >Product Reviewed</CTableHeaderCell
+                >
+                <CTableHeaderCell scope="col">Question Posted</CTableHeaderCell>
+                <CTableHeaderCell scope="col"
+                  >Question Answered</CTableHeaderCell
+                > -->
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody
-              v-for="(r, idx) in $store.state.review.review"
-              :key="idx"
-            >
+            <CTableBody v-for="(u, idx) in $store.state.user.users" :key="idx">
               <CTableRow>
                 <CTableHeaderCell scope="row">{{ idx + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
-                <CTableDataCell
+
+                <CTableDataCell>{{ u.name }}</CTableDataCell>
+                <CTableDataCell>{{ u.username }}</CTableDataCell>
+                <CTableDataCell>{{ u.email }}</CTableDataCell>
+                <CTableDataCell>{{ u.googleMail }}</CTableDataCell>
+                <CTableDataCell>{{ u.facebookMail }}</CTableDataCell>
+                <CTableDataCell>{{ u.country }}</CTableDataCell>
+                <!-- <CTableDataCell>{{ u.countedFollowers }}</CTableDataCell>
+                <CTableDataCell>{{ u.countedFollowing }}</CTableDataCell>
+                <CTableDataCell>{{ u.countedProductReviewed }}</CTableDataCell>
+                <CTableDataCell>{{ u.countedQuestionAnswer }}</CTableDataCell> -->
+                <!-- <CTableDataCell>{{ u.bio }}</CTableDataCell> -->
+                <!-- <CTableDataCell
                   :v-html="
                     () => {
-                      sanitizedText(r.reviewDescription)
+                      sanitizedText(u.bio)
                     }
                   "
-                ></CTableDataCell>
-                <CTableDataCell>{{ r.categoryName }}</CTableDataCell>
-
-                <CTableDataCell>{{ r.name }}</CTableDataCell>
+                ></CTableDataCell> -->
+                <!-- <CTableDataCell>{{ u.bio }}</CTableDataCell> -->
                 <CTableDataCell>
                   <CBadge
-                    v-if="r.isDisable === 0"
+                    v-if="u.isEnable === 1"
                     color="success"
                     shape="rounded-pill"
                     >Active</CBadge
@@ -64,11 +85,8 @@
                     color="primary"
                     @click="
                       () => {
-                        reviewId = r.reviewId
-                        review = r.review
-                        category = r.category
-                        description = r.description
-                        isDisable = r.isDisable
+                        userId = u.userId
+                        isEnable = u.isEnable
                         visibleStaticBackdrop = true
                       }
                     "
@@ -86,7 +104,7 @@
                     "
                   >
                     <CModalHeader>
-                      <CModalTitle v-if="isDisable === 1"
+                      <CModalTitle v-if="u.isEnable === 1"
                         >Enable Review</CModalTitle
                       >
                       <CModalTitle v-else>Disable Review</CModalTitle>
@@ -94,10 +112,10 @@
                     <CModalBody>
                       Are you sure want to
                       <strong>
-                        <template v-if="isDisable === 1">enable</template>
+                        <template v-if="isEnable === 0">enable</template>
                         <template v-else>disable</template></strong
                       >
-                      this review ?
+                      this user ?
                     </CModalBody>
                     <CModalFooter>
                       <CButton
@@ -107,7 +125,7 @@
                         @click="
                           () => {
                             visibleStaticBackdrop = false
-                            isDisable = r.isDisable
+                            isDisable = u.isEnable
                           }
                         "
                       >
@@ -117,7 +135,7 @@
                         size="sm"
                         color="primary"
                         :disabled="isLoading"
-                        @click.prevent="updateReview"
+                        @click.prevent="onChangeStatusUser"
                       >
                         <template v-if="isLoading">
                           <CSpinner
@@ -138,19 +156,12 @@
           <div class="overflow-auto">
             <b-pagination
               v-model="currentPage"
-              :total-rows="$store.state.review.totalRecord"
+              :total-rows="$store.state.user.userTotal"
               :per-page="perPage"
               aria-controls="my-table"
               :change="checkPage(currentPage)"
             ></b-pagination>
           </div>
-          <!-- <CPagination align="end" aria-label="Page navigation example">
-            <CPaginationItem disabled>Previous</CPaginationItem>
-            <CPaginationItem href="#">1</CPaginationItem>
-            <CPaginationItem href="#">2</CPaginationItem>
-            <CPaginationItem href="#">3</CPaginationItem>
-            <CPaginationItem href="#">Next</CPaginationItem>
-          </CPagination> -->
         </CCardBody>
       </CCard>
     </CCol>
@@ -158,10 +169,10 @@
 </template>
 
 <script>
-import review from './../../apis/review'
+import userAPI from './../../apis/user'
 import DOMPurify from 'dompurify'
 export default {
-  name: 'Reviews',
+  name: 'Users',
   data() {
     return {
       reviewId: 0,
@@ -174,21 +185,54 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('getAllReview', {
-      skip: this.skip,
-      take: this.take,
-    })
+     this.$store.dispatch('getAllUser', {
+        skip: this.skip,
+        take: this.take,
+      })
   },
   methods: {
-      checkPage(page) {
-      this.$store.dispatch('getAllReview', {
+    checkPage(page) {
+      this.$store.dispatch('getAllUser', {
         skip: this.skip,
         take: this.take,
       })
       console.log(page)
     },
     sanitizedText(text) {
-      return DOMPurify.sanitize(text)
+      var test = DOMPurify.sanitize(text)
+      console.log(test)
+      return test
+    },
+    convertDate(date) {
+      var yourDate = new Date(date)
+      return yourDate.toISOString().split('T')[0]
+    },
+    async onChangeStatusUser() {
+      this.isLoading = true
+      let data = {
+        userId: this.userId,
+      }
+      if (this.isEnable === 1) {
+        const response = await userAPI.disableUser(data)
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllUser', {
+            skip: this.skip,
+            take: this.take,
+          })
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      } else {
+        const response = await userAPI.enableUser(data)
+        if (response.isSuccess) {
+          this.$store.dispatch('getAllUser', {
+            skip: this.skip,
+            take: this.take,
+          })
+          this.visibleStaticBackdrop = false
+          this.isLoading = false
+        }
+      }
     },
     async updateReview() {
       this.isLoading = true
@@ -197,9 +241,9 @@ export default {
       }
       debugger
       if (this.isDisable === 1) {
-        const response = await review.enableReview(data)
+        const response = await userAPI.enableReview(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReview', {
+          this.$store.dispatch('getAllUser', {
             skip: this.skip,
             take: this.take,
           })
@@ -207,9 +251,9 @@ export default {
           this.isLoading = false
         }
       } else {
-        const response = await review.disableReview(data)
+        const response = await userAPI.disableReview(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllReview', {
+          this.$store.dispatch('getAllUser', {
             skip: this.skip,
             take: this.take,
           })

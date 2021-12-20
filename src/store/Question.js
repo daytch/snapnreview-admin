@@ -3,18 +3,22 @@ import question from './../apis/question'
 const Question = {
   state: {
     question: [],
+    totalRecord: 0
   },
   mutations: {
     setQuestion(state, payload) {
       state.question = payload
     },
+    setTotalRecord(state, payload) {
+      state.totalRecord = payload
+    },
   },
   actions: {
-    async getAllQuestion({ commit }) {
+    async getAllQuestion({ commit }, {skip,take}) {
       const response = await question.getAllReportedQuestion({
         search: '',
-        skip: 0,
-        take: 100,
+        skip: skip,
+        take: take,
       })
       if (response.isSuccess) {
         let data = []
@@ -29,6 +33,7 @@ const Question = {
           })
         }
         commit('setQuestion', data)
+        commit('setTotalRecord', response.total)
       }
     },
   },

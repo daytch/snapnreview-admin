@@ -66,8 +66,8 @@ export default {
   name: 'Login',
   data() {
     return {
-      username: 'snapnreview@gmail.com',
-      password: '123',
+      username: '',
+      password: '',
     }
   },
   computed: {

@@ -3,18 +3,22 @@ import review from './../apis/review'
 const Review = {
   state: {
     review: [],
+    totalRecord: 0,
   },
   mutations: {
     setReview(state, payload) {
       state.review = payload
     },
+    setTotal(state, payload){
+      state.totalRecord = payload
+    }
   },
   actions: {
-    async getAllReview({ commit }) {
+    async getAllReview({ commit }, {skip, take}) {
       const response = await review.getAllReviewReported({
         search: '',
-        skip: 0,
-        take: 100,
+        skip: skip,
+        take: take,
       })
       if (response.isSuccess) {
         let data = []
@@ -29,7 +33,9 @@ const Review = {
             isDisable: elm.isDisable,
           })
         }
+        
         commit('setReview', data)
+        commit('setTotal', response.total);
       }
     },
   },

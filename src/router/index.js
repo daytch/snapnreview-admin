@@ -86,6 +86,12 @@ const routes = [
         beforeEnter: ifAuthenticated,
       },
       {
+        path: '/pages/users',
+        name: 'Users',
+        component: () => import('@/views/pages/Users.vue'),
+        beforeEnter: ifAuthenticated,
+      },
+      {
         path: '/theme/colors',
         name: 'Colors',
         component: () => import('@/views/theme/Colors.vue'),

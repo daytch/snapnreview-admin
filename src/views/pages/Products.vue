@@ -16,13 +16,13 @@
               </CTableRow>
             </CTableHead>
             <CTableBody
-              v-for="(p, index) in $store.state.product.product"
+              v-for="(p, index) in checkTest()"
               :key="index"
             >
               <CTableRow>
-                <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
-                <CTableDataCell>{{ p.product }}</CTableDataCell>
-                <CTableDataCell>{{ p.category }}</CTableDataCell>
+                <CTableHeaderCell scope="row">{{ index + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
+                <CTableDataCell>{{ p.productname }}</CTableDataCell>
+                <CTableDataCell>{{ p.categoryName }}</CTableDataCell>
                 <CTableDataCell>{{ p.name }}</CTableDataCell>
                 <CTableDataCell>
                   <CBadge
@@ -71,7 +71,7 @@
                         <template v-if="isDisable === 1">enable</template
                         ><template v-else>disable</template></strong
                       >
-                      this product <strong>({{ p.product }})</strong>?
+                      this product <strong>({{ p.productname }})</strong>?
                     </CModalBody>
                     <CModalFooter>
                       <CButton
@@ -108,6 +108,15 @@
               </CTableRow>
             </CTableBody>
           </CTable>
+          <div class="overflow-auto">
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="$store.state.product.totalRecord"
+              :per-page="perPage"
+              aria-controls="my-table"
+              :change="checkPage(currentPage)"
+            ></b-pagination>
+          </div>
         </CCardBody>
       </CCard>
     </CCol>
@@ -125,12 +134,30 @@ export default {
       visibleStaticBackdrop: false,
       isDisable: 0,
       isLoading: false,
+      currentPage: 1,
+      perPage: 5,
+      totalRows: 1,
     }
   },
   mounted() {
-    this.$store.dispatch('getAllProduct')
+    this.$store.dispatch('getAllProduct', {
+      skip: this.skip,
+      take: this.take,
+    })
   },
   methods: {
+    checkTest(){
+      var test = this.$store.state.product.product
+      console.log(test);
+      return test;
+    },
+    async checkPage(page) {
+      await this.$store.dispatch('getAllProduct', {
+        skip: this.skip,
+        take: this.take,
+      })
+      console.log(page)
+    },
     async updateProduct() {
       this.isLoading = true
       if (this.isDisable === 1) {
@@ -138,7 +165,10 @@ export default {
           productId: this.productId,
         })
         if (response.isSuccess) {
-          this.$store.dispatch('getAllProduct')
+          this.$store.dispatch('getAllProduct', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
@@ -147,11 +177,22 @@ export default {
           productId: this.productId,
         })
         if (response.isSuccess) {
-          this.$store.dispatch('getAllProduct')
+          this.$store.dispatch('getAllProduct', {
+            skip: this.skip,
+            take: this.take,
+          })
           this.visibleStaticBackdrop = false
           this.isLoading = false
         }
       }
+    },
+  },
+  computed: {
+    skip: function () {
+      return (this.currentPage - 1) * this.perPage
+    },
+    take: function () {
+      return this.perPage
     },
   },
 }

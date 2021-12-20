@@ -37,6 +37,7 @@ export default [
     to: '/pages/comments',
     icon: 'cil-notes',
   },
+
   // {
   //   component: 'CNavItem',
   //   name: 'Reported Reviews',
@@ -55,6 +56,13 @@ export default [
     to: '/pages/reportedquestions',
     icon: 'cil-notes',
   },
+  {
+    component: 'CNavItem',
+    name : 'Users',
+    to: '/pages/users',
+    icon: 'cil-notes'
+
+  }
   // {
   //   component: 'CNavItem',
   //   name: 'Colors',
