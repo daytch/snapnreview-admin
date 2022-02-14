@@ -3,7 +3,8 @@ import answer from './../apis/answer'
 const Answer = {
   state: {
     answer: [],
-    totalRecord: 0
+    totalRecord: 0,
+    answerDetail: null
   },
   mutations: {
     setAnswer(state, payload) {
@@ -12,9 +13,12 @@ const Answer = {
     setTotalRecord(state, payload) {
       state.totalRecord = payload
     },
+    setAnswerDetail(state, payload) {
+      state.answerDetail = payload
+    }
   },
   actions: {
-    async getAllAnswer({ commit }, {skip, take}) {
+    async getAllAnswer({ commit }, { skip, take }) {
       const response = await answer.GetAllReportedAnswer({
         search: '',
         skip: skip,
@@ -37,6 +41,20 @@ const Answer = {
         commit('setTotalRecord', response.total)
       }
     },
+    async getAnswerById({ commit }, { questionAnswerId }) {
+      const response = await answer.GetAllReportedAnswer({
+        search: '',
+        skip: 0,
+        take: 1,
+        questionAnswerId
+      })
+      if (response.isSuccess) {
+
+        commit('setAnswerDetail', response.data[0])
+      } else {
+        commit('setAnswerDetail', null)
+      }
+    }
   },
   getters: {},
 }

@@ -2,7 +2,7 @@
   <CRow>
     <CCol :xs="12">
       <CCard class="mb-4">
-        <CCardHeader> <strong>Products</strong> </CCardHeader>
+        <CCardHeader> <strong>Product Reports</strong> </CCardHeader>
         <CCardBody>
           <CTable hover>
             <CTableHead>
@@ -127,10 +127,10 @@
 </template>
 
 <script>
-import product from './../../apis/product.js'
+import product from '../../apis/product.js'
 
 export default {
-  name: 'Products',
+  name: 'Product Reports',
   data() {
     return {
       productId: 0,

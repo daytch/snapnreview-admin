@@ -2,31 +2,32 @@
   <CRow>
     <CCol :xs="12">
       <CCard class="mb-4">
-        <CCardHeader> <strong>Products</strong> </CCardHeader>
+        <CCardHeader> <strong>Comments</strong> </CCardHeader>
         <CCardBody>
           <CTable hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Product</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Category</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
+                <CTableHeaderCell scope="col">User</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Comment</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Details</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Detail</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody v-for="(p, index) in checkTest()" :key="index">
-              <CTableRow>
+            <CTableBody>
+              <CTableRow
+                v-for="(r, idx) in $store.state.questionComment.comment"
+                :key="idx"
+              >
                 <CTableHeaderCell scope="row">{{
-                  index + 1 + (currentPage - 1) * perPage
+                  idx + 1 + (currentPage - 1) * perPage
                 }}</CTableHeaderCell>
-                <CTableDataCell>{{ p.productname }}</CTableDataCell>
-                <CTableDataCell>{{ p.categoryName }}</CTableDataCell>
-                <CTableDataCell>{{ p.name }}</CTableDataCell>
+                <CTableDataCell>{{ r.user_name }}</CTableDataCell>
+                <CTableDataCell>{{ r.comments }}</CTableDataCell>
                 <CTableDataCell>
                   <CBadge
-                    v-if="p.isDisable === 0"
+                    v-if="r.isDisable === 0"
                     color="success"
                     shape="rounded-pill"
                     >Active</CBadge
@@ -36,7 +37,11 @@
                   >
                 </CTableDataCell>
                 <CTableDataCell>
-                 <router-link :to="`/pages/productdetails/${p.id}`"> <CIcon name="cil-search" /></router-link>
+                  <router-link
+                    :to="`/pages/questioncommentdetail/${r.questionCommentId}`"
+                  >
+                    <CIcon name="cil-search"
+                  /></router-link>
                 </CTableDataCell>
                 <CTableDataCell>
                   <CButton
@@ -44,8 +49,8 @@
                     color="primary"
                     @click="
                       () => {
-                        productId = p.id
-                        isDisable = p.isDisable
+                        commentId = r.questionCommentId
+                        isDisable = r.isDisable
                         visibleStaticBackdrop = true
                       }
                     "
@@ -64,18 +69,19 @@
                   >
                     <CModalHeader>
                       <CModalTitle v-if="isDisable === 1"
-                        >Enable Product</CModalTitle
+                        >Enable Comment</CModalTitle
                       >
-                      <CModalTitle v-else>Disable Product</CModalTitle>
+                      <CModalTitle v-else>Disable Comment</CModalTitle>
                     </CModalHeader>
                     <CModalBody>
                       Are you sure want to
                       <strong>
-                        <template v-if="isDisable === 1">enable</template
-                        ><template v-else>disable</template></strong
+                        <template v-if="isDisable === 1">enable</template>
+                        <template v-else>disable</template></strong
                       >
-                      this product <strong>({{ p.productname }})</strong>?
+                      this comment ?
                     </CModalBody>
+
                     <CModalFooter>
                       <CButton
                         size="sm"
@@ -84,6 +90,7 @@
                         @click="
                           () => {
                             visibleStaticBackdrop = false
+                            isDisable = r.isDisable
                           }
                         "
                       >
@@ -93,7 +100,7 @@
                         size="sm"
                         color="primary"
                         :disabled="isLoading"
-                        @click.prevent="updateProduct"
+                        @click.prevent="updateQuestionComment"
                       >
                         <template v-if="isLoading">
                           <CSpinner
@@ -114,7 +121,7 @@
           <div class="overflow-auto">
             <b-pagination
               v-model="currentPage"
-              :total-rows="$store.state.product.totalRecord"
+              :total-rows="$store.state.comment.totalRecord"
               :per-page="perPage"
               aria-controls="my-table"
               :change="checkPage(currentPage)"
@@ -127,14 +134,13 @@
 </template>
 
 <script>
-import product from './../../apis/product.js'
-
+import comment from '../../apis/questionComment'
 export default {
-  name: 'Products',
+  name: 'QuestionComments',
   data() {
     return {
-      productId: 0,
       visibleStaticBackdrop: false,
+      commentId: 0,
       isDisable: 0,
       isLoading: false,
       currentPage: 1,
@@ -143,32 +149,28 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('getAllProduct', {
+    this.$store.dispatch('getAllCommentWithReported', {
       skip: this.skip,
       take: this.take,
     })
   },
   methods: {
-    checkTest() {
-      var test = this.$store.state.product.product
-      console.log(test)
-      return test
-    },
-    async checkPage(page) {
-      await this.$store.dispatch('getAllProduct', {
+    checkPage(page) {
+      this.$store.dispatch('getAllCommentWithReported', {
         skip: this.skip,
         take: this.take,
       })
       console.log(page)
     },
-    async updateProduct() {
+    async updateQuestionComment() {
       this.isLoading = true
+      let data = {
+        questionCommentId: this.commentId,
+      }
       if (this.isDisable === 1) {
-        const response = await product.enableProduct({
-          productId: this.productId,
-        })
+        const response = await comment.enableQuestionComment(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllProduct', {
+          this.$store.dispatch('getAllCommentWithReported', {
             skip: this.skip,
             take: this.take,
           })
@@ -176,11 +178,9 @@ export default {
           this.isLoading = false
         }
       } else {
-        const response = await product.disableProduct({
-          productId: this.productId,
-        })
+        const response = await comment.disableQuestionComment(data)
         if (response.isSuccess) {
-          this.$store.dispatch('getAllProduct', {
+          this.$store.dispatch('getAllCommentWithReported', {
             skip: this.skip,
             take: this.take,
           })

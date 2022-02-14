@@ -14,29 +14,98 @@ export default [
     name: 'Pages',
   },
   {
-    component: 'CNavItem',
-    name: 'Category',
-    to: '/pages/category',
-    icon: 'cil-notes',
+    component: 'CNavGroup',
+    name: 'Product',
+    to: '/',
+    icon: 'cil-Menu',
+    items: [
+      {
+        component: 'CNavItem',
+        name: 'Products',
+        to: '/pages/products',
+        icon: 'cil-notes',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Reviews',
+        to: '/pages/reviews',
+        icon: 'cil-notes',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Comments',
+        to: '/pages/comments',
+        icon: 'cil-notes',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Product Reports',
+        to: '/pages/productreports',
+        icon: 'cil-notes',
+      },
+    ]
+
+  },
+
+  {
+    component: 'CNavGroup',
+    name: 'Question',
+    to: '/',
+    icon: 'cil-Menu',
+    items: [
+      {
+        component: 'CNavItem',
+        name: 'Questions',
+        to: '/pages/questions',
+        icon: 'cil-notes',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Answers',
+        to: '/pages/answers',
+        icon: 'cil-notes',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Comments',
+        to: '/pages/questionComment',
+        icon: 'cil-notes',
+      },
+    ]
   },
   {
-    component: 'CNavItem',
-    name: 'Products',
-    to: '/pages/products',
-    icon: 'cil-notes',
+    component: 'CNavGroup',
+    name: 'User',
+    to: '/',
+    icon: 'cil-Menu',
+    items: [
+      {
+        component: 'CNavItem',
+        name: 'Users',
+        to: '/pages/users',
+        icon: 'cil-notes'
+    
+      }
+    ]
   },
   {
-    component: 'CNavItem',
-    name: 'Reviews',
-    to: '/pages/reviews',
-    icon: 'cil-notes',
+    component: 'CNavGroup',
+    name: 'Other',
+    to: '/',
+    icon: 'cil-Menu',
+    items: [
+      {
+        component: 'CNavItem',
+        name: 'Category',
+        to: '/pages/category',
+        icon: 'cil-notes',
+      },
+    ]
   },
-  {
-    component: 'CNavItem',
-    name: 'Reported Comments',
-    to: '/pages/comments',
-    icon: 'cil-notes',
-  },
+ 
+
+
+  
 
   // {
   //   component: 'CNavItem',
@@ -44,25 +113,9 @@ export default [
   //   to: '/pages/reportedreviews',
   //   icon: 'cil-notes',
   // },
-  {
-    component: 'CNavItem',
-    name: 'Questions',
-    to: '/pages/questions',
-    icon: 'cil-notes',
-  },
-  {
-    component: 'CNavItem',
-    name: 'Answers',
-    to: '/pages/reportedquestions',
-    icon: 'cil-notes',
-  },
-  {
-    component: 'CNavItem',
-    name : 'Users',
-    to: '/pages/users',
-    icon: 'cil-notes'
 
-  }
+
+ 
   // {
   //   component: 'CNavItem',
   //   name: 'Colors',

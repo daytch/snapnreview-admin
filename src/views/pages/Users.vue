@@ -2,8 +2,142 @@
   <CRow>
     <CCol :lg="12">
       <CCard class="mb-40">
+        <CModal
+          backdrop="static"
+          alignment="center"
+          :visible="visibleErrorModal"
+          @close="
+            () => {
+              visibleErrorModal = false
+            }
+          "
+        >
+          <CModalHeader>
+            <CModalTitle>Error</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            {{ errorMessage }}
+          </CModalBody>
+          <CModalFooter>
+            <CButton
+              size="sm"
+              color="secondary"
+              :disabled="isLoading"
+              @click="
+                () => {
+                  visibleErrorModal = false
+                  errorMessage = ''
+                }
+              "
+            >
+              OK
+            </CButton>
+          </CModalFooter>
+        </CModal>
         <CCardHeader> <strong>Users</strong> </CCardHeader>
         <CCardBody>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <CButton
+              color="primary"
+              size="sm"
+              @click="
+                () => {
+                  visibleModalAddAdmin = true
+                }
+              "
+              >Add Admin</CButton
+            >
+          </div>
+          <CModal
+            size="lg"
+            backdrop="static"
+            alignment="center"
+            :visible="visibleModalAddAdmin"
+            @close="
+              () => {
+                visibleModalAddAdmin = false
+              }
+            "
+          >
+            <CModalHeader>
+              <CModalTitle>Add Admin User</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+              <CFormLabel>Username</CFormLabel>
+              <CFormInput
+                v-model="username"
+                type="text"
+                size="sm"
+                placeholder="Username"
+                :value="username"
+                v-on:keypress="isLetterOrNumber($event)"
+              />
+              <CFormLabel>Email</CFormLabel>
+              <CFormInput
+                v-model="email"
+                type="email"
+                size="sm"
+                placeholder="Email@email.com"
+                :value="email"
+              />
+              <CFormLabel>Full Name</CFormLabel>
+              <CFormInput
+                v-model="fullName"
+                type="text"
+                size="sm"
+                placeholder="Full Name"
+                :value="fullName"
+              />
+              <CFormLabel>Password</CFormLabel>
+              <CFormInput
+                v-model="password"
+                type="password"
+                size="sm"
+                placeholder="Password"
+                :value="password"
+              />
+              <CFormLabel>Re-type Password</CFormLabel>
+              <CFormInput
+                v-model="retypePassword"
+                type="password"
+                size="sm"
+                placeholder="Re-type Password"
+                :value="retypePassword"
+              />
+
+              <div v-if="formError.count != 0">
+                <ul>
+                  <li v-for="item in formError" :key="item">{{ item }}</li>
+                </ul>
+              </div>
+            </CModalBody>
+            <CModalFooter>
+              <CButton
+                size="sm"
+                color="secondary"
+                :disabled="isLoading"
+                @click="
+                  () => {
+                    visibleModalAddAdmin = false
+                  }
+                "
+              >
+                Close
+              </CButton>
+              <CButton
+                size="sm"
+                color="primary"
+                :disabled="isLoading"
+                @click.prevent="addUser"
+              >
+                <template v-if="isLoading">
+                  <CSpinner component="span" size="sm" aria-hidden="true" />
+                  Loading...</template
+                >
+                <template v-else>Add</template></CButton
+              >
+            </CModalFooter>
+          </CModal>
           <CRow class="justify-content-start">
             <CCol xs="1">
               <!-- <CFormSelect style size="sm">
@@ -47,7 +181,9 @@
             </CTableHead>
             <CTableBody v-for="(u, idx) in $store.state.user.users" :key="idx">
               <CTableRow>
-                <CTableHeaderCell scope="row">{{ idx + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
+                <CTableHeaderCell scope="row">{{
+                  idx + 1 + (currentPage - 1) * perPage
+                }}</CTableHeaderCell>
 
                 <CTableDataCell>{{ u.name }}</CTableDataCell>
                 <CTableDataCell>{{ u.username }}</CTableDataCell>
@@ -177,20 +313,81 @@ export default {
     return {
       reviewId: 0,
       visibleStaticBackdrop: false,
+      visibleModalAddAdmin: false,
+      visibleErrorModal: false,
+      errorMessage: '',
       isDisable: 0,
       isLoading: false,
       currentPage: 1,
       perPage: 5,
       totalRows: 1,
+      username: '',
+      email: '',
+      fullName: '',
+      password: '',
+      retypePassword: '',
+      formError: [],
     }
   },
+  computed: {
+    skip: function () {
+      return (this.currentPage - 1) * this.perPage
+    },
+    take: function () {
+      return this.perPage
+    },
+  },
   mounted() {
-     this.$store.dispatch('getAllUser', {
-        skip: this.skip,
-        take: this.take,
-      })
+    this.$store.dispatch('getAllUser', {
+      skip: this.skip,
+      take: this.take,
+    })
   },
   methods: {
+    isLetterOrNumber(e) {
+      let char = String.fromCharCode(e.keyCode)
+      if (/^[A-Za-z0-9]+$/.test(char)) return true
+      else e.preventDefault()
+    },
+    async addUser() {
+      this.isLoading = true
+      this.formError = []
+      let emailExp = new RegExp(
+        '[a-zA-Z0-9_\\.\\+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-\\.]+',
+      )
+      if (this.username === '') {
+        this.formError.push('username is not valid')
+      }
+      if (!emailExp.test(this.email)) {
+        this.formError.push('Email is not valid')
+      }
+      if (this.password !== this.retypePassword) {
+        this.formError.push('Password is not same with Re-type password')
+      }
+  
+      if (this.formError.length > 0) {
+        this.isLoading = false
+        return
+      }
+      var data = {
+        email: this.email,
+        password: this.password,
+        username: this.username,
+        name: this.fullName,
+        token: 'WebToken',
+        type: 'web',
+      }
+      var response = await userAPI.registerAdmin(data)
+      if (response.isSuccess) {
+        this.visibleModalAddAdmin = false
+      } else {
+         this.visibleModalAddAdmin = false
+        this.visibleErrorModal = true
+        this.errorMessage = response.message
+      }
+
+      this.isLoading = false
+    },
     checkPage(page) {
       this.$store.dispatch('getAllUser', {
         skip: this.skip,
@@ -261,14 +458,6 @@ export default {
           this.isLoading = false
         }
       }
-    },
-  },
-  computed: {
-    skip: function () {
-      return (this.currentPage - 1) * this.perPage
-    },
-    take: function () {
-      return this.perPage
     },
   },
 }

@@ -10,8 +10,9 @@
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Title</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Category</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Details</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
@@ -36,6 +37,11 @@
                   <CBadge v-else color="danger" shape="rounded-pill"
                     >Inactive</CBadge
                   >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <router-link :to="`/pages/questiondetail/${r.questionId}`">
+                    <CIcon name="cil-search"
+                  /></router-link>
                 </CTableDataCell>
                 <CTableDataCell>
                   <CButton
@@ -142,10 +148,10 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('getAllQuestion', {
-      skip: this.skip,
-      take: this.take,
-    })
+    // this.$store.dispatch('getAllQuestion', {
+    //   skip: this.skip,
+    //   take: this.take,
+    // })
   },
   methods: {
     checkPage(page) {

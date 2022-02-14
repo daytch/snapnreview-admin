@@ -7,6 +7,7 @@ import commentModule from './Comment'
 import questionModule from './Question'
 import answerModule from './Answer'
 import sharedModule from './Shared'
+import questionCommentModule from './QuestionComment'
 
 const store = new Vuex.Store({
   modules: {
@@ -18,6 +19,7 @@ const store = new Vuex.Store({
     question: questionModule,
     answer: answerModule,
     shared: sharedModule,
+    questionComment : questionCommentModule
   },
 })
 export default store

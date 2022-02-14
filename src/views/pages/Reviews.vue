@@ -28,6 +28,7 @@
                 <CTableHeaderCell scope="col">Category</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Details</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
@@ -36,13 +37,11 @@
               :key="idx"
             >
               <CTableRow>
-                <CTableHeaderCell scope="row">{{ idx + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
-                <CTableDataCell
-                  :v-html="
-                    () => {
-                      sanitizedText(r.reviewDescription)
-                    }
-                  "
+                <CTableHeaderCell scope="row">{{
+                  idx + 1 + (currentPage - 1) * perPage
+                }}</CTableHeaderCell>
+                <CTableDataCell>
+                  <div v-html="r.reviewDescription"></div
                 ></CTableDataCell>
                 <CTableDataCell>{{ r.categoryName }}</CTableDataCell>
 
@@ -57,6 +56,22 @@
                   <CBadge v-else color="danger" shape="rounded-pill"
                     >Inactive</CBadge
                   >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <router-link :to="`/pages/reviewdetail/${r.reviewId}`">
+                    <CIcon name="cil-search"
+                  /></router-link>
+                  <!-- <CButton
+                    size="sm"
+                    color="primary"
+                    @click="
+                      () => {
+                        this.rou
+                      }
+                    "
+                  >
+                    <CIcon name="cil-search" />
+                  </CButton> -->
                 </CTableDataCell>
                 <CTableDataCell>
                   <CButton
@@ -180,7 +195,7 @@ export default {
     })
   },
   methods: {
-      checkPage(page) {
+    checkPage(page) {
       this.$store.dispatch('getAllReview', {
         skip: this.skip,
         take: this.take,

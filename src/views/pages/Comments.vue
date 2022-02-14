@@ -2,7 +2,7 @@
   <CRow>
     <CCol :xs="12">
       <CCard class="mb-4">
-        <CCardHeader> <strong>Reported Comments</strong> </CCardHeader>
+        <CCardHeader> <strong>Comments</strong> </CCardHeader>
         <CCardBody>
           <CTable hover>
             <CTableHead>
@@ -11,6 +11,7 @@
                 <CTableHeaderCell scope="col">User</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Comment</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Detail </CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
@@ -19,7 +20,9 @@
                 v-for="(r, idx) in $store.state.comment.comment"
                 :key="idx"
               >
-                <CTableHeaderCell scope="row">{{ idx + 1 +  ((currentPage -1) * perPage) }}</CTableHeaderCell>
+                <CTableHeaderCell scope="row">{{
+                  idx + 1 + (currentPage - 1) * perPage
+                }}</CTableHeaderCell>
                 <CTableDataCell>{{ r.name }}</CTableDataCell>
                 <CTableDataCell>{{ r.comment }}</CTableDataCell>
                 <CTableDataCell>
@@ -32,6 +35,11 @@
                   <CBadge v-else color="danger" shape="rounded-pill"
                     >Inactive</CBadge
                   >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <router-link :to="`/pages/commentdetail/${r.reviewCommentId}`">
+                    <CIcon name="cil-search"
+                  /></router-link>
                 </CTableDataCell>
                 <CTableDataCell>
                   <CButton

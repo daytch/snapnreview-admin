@@ -1,26 +1,26 @@
-import product from './../apis/product'
+import productReports from '../apis/productReports'
 
-const Product = {
+const ProductReport = {
   state: {
-    product: [],
+    productReports: [],
     totalRecord: 0,
-    productDetail: null,
+    productReportDetail: null,
   },
   mutations: {
-    setProduct(state, payload) {
-      state.product = payload
+    setProductReport(state, payload) {
+      state.productReports = payload
     },
     setTotalRecord(state, payload) {
       state.totalRecord = payload
     },
-    setProductDetail(state, payload) {
-      state.productDetail = payload
+    setProductReportDetail(state, payload) {
+      state.productReportDetail = payload
     },
   },
   actions: {
     async getAllProduct({ commit }, { skip, take }) {
       console.log(skip, take)
-      const response = await product.getAllReportedProduct({
+      const response = await productReports.getAllProductRepots({
         search: '',
         skip: skip,
         take: take,
@@ -37,7 +37,7 @@ const Product = {
         //     isDisable: element.isDisable,
         //   })
         // }
-        commit('setProduct', response.data)
+        commit('setProductReport', response.data)
         commit('setTotalRecord', response.total)
       }
     },
@@ -48,7 +48,7 @@ const Product = {
       if (response.isSuccess) {
         console.log(response.data[0])
         if(response.data.length>0){
-          commit('setProductDetail', response.data[0])
+          commit('setProductReportDetail', response.data[0])
         }
         
       }

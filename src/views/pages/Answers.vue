@@ -2,7 +2,7 @@
   <CRow>
     <CCol :xs="12">
       <CCard class="mb-4">
-        <CCardHeader> <strong>Reported Answer</strong> </CCardHeader>
+        <CCardHeader> <strong>Answers</strong> </CCardHeader>
         <CCardBody>
           <CTable hover>
             <CTableHead>
@@ -11,8 +11,9 @@
                 <CTableHeaderCell scope="col">Question</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Category</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Answer</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Answered By</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Posted By</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Details</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Action</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
@@ -26,7 +27,9 @@
                 }}</CTableHeaderCell>
                 <CTableDataCell>{{ r.question }}</CTableDataCell>
                 <CTableDataCell>{{ r.categoryName }}</CTableDataCell>
-                <CTableDataCell>{{ r.answerDescription }}</CTableDataCell>
+                <CTableDataCell>
+                  <div v-html="r.answerDescription"></div
+                ></CTableDataCell>
                 <CTableDataCell>{{ r.whoAnswer }}</CTableDataCell>
                 <CTableDataCell>
                   <CBadge
@@ -38,6 +41,13 @@
                   <CBadge v-else color="danger" shape="rounded-pill"
                     >Inactive</CBadge
                   >
+                </CTableDataCell>
+                <CTableDataCell>
+                  <router-link
+                    :to="`/pages/answerdetail/${r.questionAnswerID}`"
+                  >
+                    <CIcon name="cil-search"
+                  /></router-link>
                 </CTableDataCell>
                 <CTableDataCell>
                   <CButton
@@ -138,7 +148,7 @@ export default {
       visibleStaticBackdrop: false,
       isDisable: 0,
       isLoading: false,
-       currentPage: 1,
+      currentPage: 1,
       perPage: 5,
       totalRows: 1,
     }
@@ -187,7 +197,7 @@ export default {
       }
     },
   },
-   computed: {
+  computed: {
     skip: function () {
       return (this.currentPage - 1) * this.perPage
     },
